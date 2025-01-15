@@ -1,6 +1,7 @@
 package com.github.adrjo.snowcloud.auth;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +22,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterUserDTO userDto) {
         try {
-            User user = service.register(userDto.email, userDto.name, userDto.pass);
+            User user = service.register(userDto.getEmail(), userDto.getName(), userDto.getPass());
             return ResponseEntity.ok(user);
         } catch (IllegalArgumentException e) {
             return ResponseEntity
@@ -31,9 +32,10 @@ public class AuthController {
     }
 
     @AllArgsConstructor
+    @Getter
     public static class RegisterUserDTO {
-        private final String email;
-        private final String name;
-        private final String pass;
+        private String email;
+        private String name;
+        private String pass;
     }
 }

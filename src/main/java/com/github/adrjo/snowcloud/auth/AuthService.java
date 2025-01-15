@@ -32,7 +32,7 @@ public class AuthService {
 
         final User user = new User(email, name, pass);
 
-        repository.addUser(user);
+        repository.save(user);
         return user;
     }
 }

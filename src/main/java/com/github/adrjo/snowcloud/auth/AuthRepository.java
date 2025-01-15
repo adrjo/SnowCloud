@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class AuthRepository {
 
-    public void addUser(User user) {
+    public void save(User user) {
         //TODO: database
     }
 }
