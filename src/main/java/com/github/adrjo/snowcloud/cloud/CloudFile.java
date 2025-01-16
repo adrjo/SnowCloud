@@ -14,13 +14,13 @@ public class CloudFile {
     private final UUID id;
 
     private String name;
-    private int size;
+    private long size;
     private String contentType;
     private long lastModified;
 
     private byte[] fileData;
 
-    public CloudFile(String name, int size, String contentType, long lastModified) {
+    public CloudFile(String name, long size, String contentType, long lastModified) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.size = size;

@@ -67,7 +67,7 @@ public class CloudController {
     @AllArgsConstructor
     public static class FileMetaDto {
         private String name;
-        private int size;
+        private long size;
         private String contentType;
         private long lastModified;
 
