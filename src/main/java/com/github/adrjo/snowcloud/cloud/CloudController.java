@@ -1,16 +1,15 @@
 package com.github.adrjo.snowcloud.cloud;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class CloudController {
@@ -30,31 +29,50 @@ public class CloudController {
      * @return list of FileMeta
      */
     @GetMapping("/files/{directory}")
-    public ResponseEntity<List<FileMeta>> getFilesInDirectory(@PathVariable String directory) {
+    public ResponseEntity<?> getFilesInDirectory(@PathVariable String directory) {
         try {
-            List<FileMeta> files = service.getFiles(directory);
+            List<CloudFile> files = service.getFiles(directory);
+            List<FileMetaDto> response = new ArrayList<>();
+            for (CloudFile file : files) {
+                response.add(FileMetaDto.fromModel(file));
+            }
 
-            return ResponseEntity.ok(files);
+            return ResponseEntity.ok(response);
         } catch (FileNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
     }
         }
 
+    /**
+     * Returns the file in the directory requested
+     * @param directory directory to search in
+     * @param fileName of the file
+     * @return file data
+     */
     @GetMapping("/download/{directory}/{fileName}")
-    public ResponseEntity<File> downloadFile(@PathVariable String directory, @PathVariable String fileName) {
+    public ResponseEntity<?> downloadFile(@PathVariable String directory, @PathVariable String fileName) {
         try {
-            File file = service.getFile(directory, fileName);
+            CloudFile file = service.getFile(directory, fileName);
 
+            //todo
             return ResponseEntity.ok(file);
         } catch (FileNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
         }
     }
 
     @Data
-    public static class FileDto {
+    @AllArgsConstructor
+    public static class FileMetaDto {
         private String name;
         private int size;
-        private byte[] data;
+        private String contentType;
+        private long lastModified;
+
+        public static FileMetaDto fromModel(CloudFile file) {
+            return new FileMetaDto(file.getName(), file.getSize(), file.getContentType(), file.getLastModified());
+        }
     }
 }
