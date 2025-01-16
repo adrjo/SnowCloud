@@ -1,11 +1,10 @@
 package com.github.adrjo.snowcloud.auth;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public class AuthRepository {
+import java.util.UUID;
 
-    public void save(User user) {
-        //TODO: database
-    }
+@Repository
+public interface AuthRepository extends JpaRepository<User, UUID> {
 }

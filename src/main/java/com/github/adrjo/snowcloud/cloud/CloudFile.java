@@ -1,7 +1,9 @@
 package com.github.adrjo.snowcloud.cloud;
 
+import com.github.adrjo.snowcloud.auth.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
 import java.util.UUID;
@@ -18,14 +20,21 @@ public class CloudFile {
     private String contentType;
     private long lastModified;
 
+    // the directory the file is in
+    private String directory;
+
     private byte[] fileData;
 
-    public CloudFile(String name, long size, String contentType, long lastModified) {
+    @ManyToOne
+    private User user;
+
+    public CloudFile(String name, long size, String contentType, long lastModified, String directory) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.size = size;
         this.contentType = contentType;
         this.lastModified = lastModified;
+        this.directory = directory;
         this.fileData = null;
     }
 }

@@ -1,14 +1,12 @@
 package com.github.adrjo.snowcloud.cloud;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,29 +23,31 @@ public class CloudController {
      * Get all the files in a directory
      * Only file meta-data is sent here, no contents
      * to get file contents, use CloudController::downloadFile
-     * @param directory - the directory to use
+     *
+     * @param request
+     *        to get the full directory path, including directories in directories, we use wildcard and
+     *        HttpServletRequest to extract the full path after the /files/ endpoint.
+     *        without this directories would not be able to be deeper than one.
      * @return list of FileMeta
      */
-    @GetMapping("/files/{directory}")
-    public ResponseEntity<?> getFilesInDirectory(@PathVariable String directory) {
+    @GetMapping("/files/**")
+    public ResponseEntity<?> getFilesInDirectory(HttpServletRequest request) {
+        String directory = request.getRequestURI().substring("/files/".length());
         try {
-            List<CloudFile> files = service.getFiles(directory);
-            List<FileMetaDto> response = new ArrayList<>();
-            for (CloudFile file : files) {
-                response.add(FileMetaDto.fromModel(file));
-            }
+            List<FileMeta> files = service.getFiles(directory);
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(files);
         } catch (FileNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());
-    }
         }
+    }
 
     /**
      * Returns the file in the directory requested
+     *
      * @param directory directory to search in
-     * @param fileName of the file
+     * @param fileName  of the file
      * @return file data
      */
     @GetMapping("/download/{directory}/{fileName}")
@@ -60,19 +60,6 @@ public class CloudController {
         } catch (FileNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());
-        }
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class FileMetaDto {
-        private String name;
-        private long size;
-        private String contentType;
-        private long lastModified;
-
-        public static FileMetaDto fromModel(CloudFile file) {
-            return new FileMetaDto(file.getName(), file.getSize(), file.getContentType(), file.getLastModified());
         }
     }
 }
