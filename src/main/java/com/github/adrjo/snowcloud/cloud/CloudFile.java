@@ -1,9 +1,7 @@
 package com.github.adrjo.snowcloud.cloud;
 
 import com.github.adrjo.snowcloud.auth.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +10,9 @@ import java.util.UUID;
 @Entity
 @Data
 @NoArgsConstructor
+@Table(
+        uniqueConstraints = @UniqueConstraint(columnNames = {"directory", "name"})
+)
 public class CloudFile {
 
     @Id

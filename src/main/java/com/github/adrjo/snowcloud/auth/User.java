@@ -1,37 +1,52 @@
 package com.github.adrjo.snowcloud.auth;
 
 import com.github.adrjo.snowcloud.cloud.CloudFile;
-import com.github.adrjo.snowcloud.util.CryptoUtils;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 @Entity(name = "cloud_user")
 @Data
 @NoArgsConstructor
-public class User {
+public class User implements UserDetails {
 
     @Id
     private UUID id;
 
+    @Column(unique = true)
     private String email;
+    @Column(unique = true)
     private String username;
     private String hashedPassword;
 
     @OneToMany(mappedBy = "user")
     private List<CloudFile> files;
 
-    public User(String email, String username, String password) {
+    public User(String email, String username, String hashedPassword) {
         this.id = UUID.randomUUID();
         this.email = email;
         this.username = username;
-        this.hashedPassword = CryptoUtils.hashPassword(password);
+        this.hashedPassword = hashedPassword;
         this.files = new ArrayList<>();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getPassword() {
+        return this.hashedPassword;
     }
 }
