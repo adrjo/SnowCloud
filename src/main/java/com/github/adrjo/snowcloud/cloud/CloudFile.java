@@ -11,7 +11,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @Table(
-        uniqueConstraints = @UniqueConstraint(columnNames = {"directory", "name"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user", "directory", "name"})
 )
 public class CloudFile {
 
@@ -31,7 +31,7 @@ public class CloudFile {
     @ManyToOne
     private User user;
 
-    public CloudFile(String name, long size, String contentType, long lastModified, String directory) {
+    public CloudFile(String name, long size, String contentType, long lastModified, String directory, User user) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.size = size;
@@ -39,5 +39,6 @@ public class CloudFile {
         this.lastModified = lastModified;
         this.directory = directory;
         this.fileData = null;
+        this.user = user;
     }
 }

@@ -1,5 +1,6 @@
 package com.github.adrjo.snowcloud.cloud;
 
+import com.github.adrjo.snowcloud.auth.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +18,8 @@ public class CloudService {
         this.repository = repository;
     }
 
-    public List<FileMeta> getFiles(String directory) throws FileNotFoundException {
-        List<CloudFile> files = repository.getFilesInDir(directory);
+    public List<FileMeta> getFiles(String directory, User user) throws FileNotFoundException {
+        List<CloudFile> files = repository.findFilesInDirectory(directory, user);
         if (files == null) {
             throw new FileNotFoundException("Directory not found");
         }
@@ -30,14 +31,14 @@ public class CloudService {
         return meta;
     }
 
-    public CloudFile getFile(String path) throws FileNotFoundException {
+    public CloudFile getFile(String path, User user) throws FileNotFoundException {
         if (path.endsWith("/")) {
             throw new IllegalArgumentException("Downloading folder is disallowed.");
         }
         String directory = getDir(path);
         String fileName = (!directory.isEmpty() ? path.substring(directory.length() + 1) : path);
 
-        Optional<CloudFile> file = repository.findByDirectoryAndName(directory, fileName);
+        Optional<CloudFile> file = repository.findByDirectoryAndNameAndUser(directory, fileName, user);
 
         if (file.isEmpty()) {
             throw new FileNotFoundException("File not found");

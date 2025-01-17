@@ -1,9 +1,11 @@
 package com.github.adrjo.snowcloud.cloud;
 
+import com.github.adrjo.snowcloud.auth.User;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
@@ -20,10 +22,11 @@ public class CloudController {
     }
 
     /**
-     * Get all the files in a directory
+     * Get all the files in a user directory
      * Only file meta-data is sent here, no contents
      * to get file contents, use CloudController::downloadFile
      *
+     * @param user the user sending the request
      * @param request
      *        to get the full directory path, including directories in directories, we use wildcard and
      *        HttpServletRequest to extract the full path after the /files/ endpoint.
@@ -31,10 +34,10 @@ public class CloudController {
      * @return list of FileMeta
      */
     @GetMapping("/files/**")
-    public ResponseEntity<?> getFilesInDirectory(HttpServletRequest request) {
+    public ResponseEntity<?> getFilesInDirectory(@AuthenticationPrincipal User user, HttpServletRequest request) {
         String directory = request.getRequestURI().substring("/files/".length());
         try {
-            List<FileMeta> files = service.getFiles(directory);
+            List<FileMeta> files = service.getFiles(directory, user);
 
             return ResponseEntity.ok(files);
         } catch (FileNotFoundException e) {
@@ -44,16 +47,17 @@ public class CloudController {
     }
 
     /**
-     * Returns the file in the directory requested
+     * Returns the file in the user directory requested
      *
+     * @param user the user sending the request
      * @param request - full path of the file to be downloaded
      * @return file data
      */
     @GetMapping("/download/**")
-    public ResponseEntity<?> downloadFile(HttpServletRequest request) {
+    public ResponseEntity<?> downloadFile(@AuthenticationPrincipal User user, HttpServletRequest request) {
         String path = request.getRequestURI().substring("/download/".length());
         try {
-            CloudFile file = service.getFile(path);
+            CloudFile file = service.getFile(path, user);
 
             //todo
             return ResponseEntity.ok(file);

@@ -1,5 +1,6 @@
 package com.github.adrjo.snowcloud.cloud;
 
+import com.github.adrjo.snowcloud.auth.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,10 +15,10 @@ public interface CloudRepository extends JpaRepository<CloudFile, UUID> {
 
     @Query("""
     SELECT new com.github.adrjo.snowcloud.cloud.CloudFile
-    (file.name, file.size, file.contentType, file.lastModified, file.directory) FROM CloudFile file
-    WHERE file.directory = :directory
+    (file.name, file.size, file.contentType, file.lastModified, file.directory, file.user) FROM CloudFile file
+    WHERE file.directory = :directory AND file.user = :user
     """)
-    List<CloudFile> getFilesInDir(@Param("directory") String directory);
+    List<CloudFile> findFilesInDirectory(@Param("directory") String directory, @Param("user") User user);
 
-    Optional<CloudFile> findByDirectoryAndName(String directory, String name);
+    Optional<CloudFile> findByDirectoryAndNameAndUser(String directory, String name, User user);
 }
