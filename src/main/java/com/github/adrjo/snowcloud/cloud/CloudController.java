@@ -2,11 +2,13 @@ package com.github.adrjo.snowcloud.cloud;
 
 import com.github.adrjo.snowcloud.auth.User;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -68,5 +70,28 @@ public class CloudController {
             return ResponseEntity.badRequest()
                     .body(e.getMessage());
         }
+    }
+
+    /**
+     * Creates a folder
+     * location needs to point to a folder that already exists, or be left empty (root folder)
+     *
+     * @param dto
+     * @return status
+     */
+    @PostMapping("/create-folder")
+    public ResponseEntity<?> createFolder(@RequestBody CreateFolderDto dto) {
+        throw new IllegalArgumentException("Not implemented");
+    }
+
+    @PostMapping("/upload-file")
+    public ResponseEntity<?> uploadFile(MultipartFile file) {
+
+    }
+
+    @Data
+    public static class CreateFolderDto {
+        private String name;
+        private String location;
     }
 }
