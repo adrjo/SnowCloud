@@ -50,7 +50,7 @@ public class CloudController {
      * Returns the file in the user directory requested
      *
      * @param user the user sending the request
-     * @param request - full path of the file to be downloaded
+     * @param request full path of the file to be downloaded
      * @return file data
      */
     @GetMapping("/download/**")
