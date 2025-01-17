@@ -46,19 +46,22 @@ public class CloudController {
     /**
      * Returns the file in the directory requested
      *
-     * @param directory directory to search in
-     * @param fileName  of the file
+     * @param request - full path of the file to be downloaded
      * @return file data
      */
-    @GetMapping("/download/{directory}/{fileName}")
-    public ResponseEntity<?> downloadFile(@PathVariable String directory, @PathVariable String fileName) {
+    @GetMapping("/download/**")
+    public ResponseEntity<?> downloadFile(HttpServletRequest request) {
+        String path = request.getRequestURI().substring("/download/".length());
         try {
-            CloudFile file = service.getFile(directory, fileName);
+            CloudFile file = service.getFile(path);
 
             //todo
             return ResponseEntity.ok(file);
         } catch (FileNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
                     .body(e.getMessage());
         }
     }

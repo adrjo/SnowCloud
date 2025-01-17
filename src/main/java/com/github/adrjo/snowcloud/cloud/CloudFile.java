@@ -5,15 +5,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class CloudFile {
 
     @Id
-    private final UUID id;
+    private UUID id;
 
     private String name;
     private long size;
