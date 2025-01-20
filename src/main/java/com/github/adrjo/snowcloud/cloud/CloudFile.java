@@ -1,5 +1,7 @@
 package com.github.adrjo.snowcloud.cloud;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.adrjo.snowcloud.util.DateUtil;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +25,7 @@ public class CloudFile {
     private long lastModified;
 
     @ManyToOne
+    @JsonIgnore
     private CloudFolder directory;
 
     private byte[] fileData;
@@ -35,5 +38,9 @@ public class CloudFile {
         this.lastModified = lastModified;
         this.directory = directory;
         this.fileData = null;
+    }
+
+    public String getLastModifiedFormatted() {
+        return DateUtil.format(this.lastModified);
     }
 }

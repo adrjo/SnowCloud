@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -62,8 +63,11 @@ public class CloudController {
         try {
             CloudFile file = service.getFileData(path, user);
 
-            //todo
-            return ResponseEntity.ok(file);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                    .header(HttpHeaders.CONTENT_TYPE, file.getContentType())
+                    .header(HttpHeaders.LAST_MODIFIED, file.getLastModifiedFormatted())
+                    .body(file.getFileData()); // no content-length header needed, spring sets this automatically (and things break if set manually)
         } catch (FileNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());
