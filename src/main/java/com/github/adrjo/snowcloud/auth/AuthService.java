@@ -75,7 +75,7 @@ public class AuthService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return (UserDetails) loadUserByNameOrEmail(username)
-                .orElseThrow();
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password."));
     }
 
     public Optional<User> verify(String token) {
