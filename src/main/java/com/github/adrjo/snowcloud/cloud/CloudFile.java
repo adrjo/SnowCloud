@@ -1,6 +1,5 @@
 package com.github.adrjo.snowcloud.cloud;
 
-import com.github.adrjo.snowcloud.auth.User;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @Table(
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user", "directory", "name"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"directory", "name"})
 )
 public class CloudFile {
 
@@ -23,15 +22,12 @@ public class CloudFile {
     private String contentType;
     private long lastModified;
 
-    // the directory the file is in
-    private String directory;
+    @ManyToOne
+    private CloudFolder directory;
 
     private byte[] fileData;
 
-    @ManyToOne
-    private User user;
-
-    public CloudFile(String name, long size, String contentType, long lastModified, String directory, User user) {
+    public CloudFile(String name, long size, String contentType, long lastModified, CloudFolder directory) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.size = size;
@@ -39,6 +35,5 @@ public class CloudFile {
         this.lastModified = lastModified;
         this.directory = directory;
         this.fileData = null;
-        this.user = user;
     }
 }

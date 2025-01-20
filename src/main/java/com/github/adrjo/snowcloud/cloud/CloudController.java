@@ -73,20 +73,29 @@ public class CloudController {
     }
 
     /**
-     * Creates a folder<
+     * Creates a folder
      * location needs to point to a folder that already exists, or be left empty (root folder)
      *
      * @param dto
      * @return status
      */
     @PostMapping("/create-folder")
-    public ResponseEntity<?> createFolder(@RequestBody CreateFolderDto dto) {
-        throw new IllegalArgumentException("Not implemented");
+    public ResponseEntity<?> createFolder(@AuthenticationPrincipal User user, @RequestBody CreateFolderDto dto) {
+        try {
+            service.createFolder(dto.name, dto.location, user);
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("Error: " + e.getMessage());
+        }
     }
 
     @PostMapping("/upload-file")
     public ResponseEntity<?> uploadFile(MultipartFile file) {
-
+        throw new IllegalArgumentException("Not implemented");
     }
 
     @Data

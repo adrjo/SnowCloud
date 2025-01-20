@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface CloudRepository extends JpaRepository<CloudFile, UUID> {
+public interface CloudFileRepository extends JpaRepository<CloudFile, UUID> {
 
     @Query("""
     SELECT new com.github.adrjo.snowcloud.cloud.CloudFile

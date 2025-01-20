@@ -6,20 +6,23 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CloudService {
-    private final CloudRepository repository;
+    private final CloudFileRepository fileRepository;
+    private final CloudFolderRepository folderRepository;
 
     @Autowired
-    public CloudService(CloudRepository repository) {
-        this.repository = repository;
+    public CloudService(CloudFileRepository fileRepository, CloudFolderRepository folderRepository) {
+        this.fileRepository = fileRepository;
+        this.folderRepository = folderRepository;
     }
 
     public List<FileMeta> getFiles(String directory, User user) throws FileNotFoundException {
-        List<CloudFile> files = repository.findFilesInDirectory(directory, user);
+        List<CloudFile> files = fileRepository.findFilesInDirectory(directory, user);
         if (files == null) {
             throw new FileNotFoundException("Directory not found");
         }
@@ -38,7 +41,7 @@ public class CloudService {
         String directory = getDir(path);
         String fileName = (!directory.isEmpty() ? path.substring(directory.length() + 1) : path);
 
-        Optional<CloudFile> file = repository.findByDirectoryAndNameAndUser(directory, fileName, user);
+        Optional<CloudFile> file = fileRepository.findByDirectoryAndNameAndUser(directory, fileName, user);
 
         if (file.isEmpty()) {
             throw new FileNotFoundException("File not found");
@@ -54,5 +57,39 @@ public class CloudService {
         }
 
         return path.substring(0, finalDirectoryIndex);
+    }
+
+    /**
+     * Checks if folder already exists, makes sure that its parent exists, then creates the folder
+     *
+     * @param name of the folder
+     * @param location of the folder
+     * @param user the owner of the folder
+     * @throws FileNotFoundException if the parent directory does not exist
+     */
+    public void createFolder(String name, String location, User user) throws FileNotFoundException {
+        Optional<CloudFolder> folder = folderRepository.findByNameAndLocationAndUser(name, location, user);
+
+        if (folder.isPresent()) {
+            throw new IllegalArgumentException("Folder already exists.");
+        }
+
+        String[] parentParts = location.split("/");
+        String parentName = parentParts[parentParts.length - 1];
+        String parentLocation = String.join("", Arrays.copyOf(parentParts, parentParts.length - 1));
+
+        Optional<CloudFolder> parent = folderRepository.findByNameAndLocationAndUser(parentName, parentLocation, user);
+
+        if (parent.isEmpty()) {
+            throw new FileNotFoundException("Parent folder does not exist!");
+        }
+
+        final CloudFolder newFolder = new CloudFolder(name, location, parent.get(), user);
+        folderRepository.save(newFolder);
+    }
+
+    public void createRootDirectory(User user) {
+        final CloudFolder root = new CloudFolder("", "", null, user);
+        folderRepository.save(root);
     }
 }
