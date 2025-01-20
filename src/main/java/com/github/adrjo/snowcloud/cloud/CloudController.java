@@ -26,22 +26,22 @@ public class CloudController {
     }
 
     /**
-     * Get all the files in a user directory
+     * Get all the files in a user folder
      * Only file meta-data is sent here, no contents
      * to get file contents, use CloudController::downloadFile
      *
      * @param user the user sending the request
      * @param request
-     *        to get the full directory path, including directories in directories, we use wildcard and
+     *        to get the full folder path, including folders in folders, we use wildcard and
      *        HttpServletRequest to extract the full path after the /files/ endpoint.
-     *        without this directories would not be able to be deeper than one.
+     *        without this folders would not be able to be deeper than one.
      * @return list of FileMeta
      */
     @GetMapping("/files/**")
-    public ResponseEntity<?> getFilesInDirectory(@AuthenticationPrincipal User user, HttpServletRequest request) {
-        String directory = request.getRequestURI().substring("/files/".length());
+    public ResponseEntity<?> getFilesInFolder(@AuthenticationPrincipal User user, HttpServletRequest request) {
+        String path = request.getRequestURI().substring("/files/".length());
         try {
-            List<FileMeta> files = service.getFiles(directory, user);
+            List<FileMeta> files = service.getFiles(path, user);
 
             return ResponseEntity.ok(files);
         } catch (FileNotFoundException e) {
@@ -51,7 +51,7 @@ public class CloudController {
     }
 
     /**
-     * Returns the file in the user directory requested
+     * Returns the file in the user folder requested
      *
      * @param user the user sending the request
      * @param request full path of the file to be downloaded
@@ -81,8 +81,9 @@ public class CloudController {
      * Creates a folder
      * location needs to point to a folder that already exists, or be left empty (root folder)
      *
-     * @param dto
-     * @return status
+     * @param user the user sending the request
+     * @param dto name and path location of where the folder should be created
+     * @return folder info on success
      */
     @PostMapping("/create-folder")
     public ResponseEntity<?> createFolder(@AuthenticationPrincipal User user, @RequestBody CreateFolderDto dto) {

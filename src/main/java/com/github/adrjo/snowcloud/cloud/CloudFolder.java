@@ -22,18 +22,18 @@ public class CloudFolder {
     private String name;
     private String location;
 
-    // The files stored in this directory
-    @OneToMany(mappedBy = "directory")
+    // The files stored in this folder
+    @OneToMany(mappedBy = "folder")
     private List<CloudFile> files;
-    // The directories stored in this directory
+    // The folders stored in this folder
     @OneToMany(mappedBy = "parent")
     private List<CloudFolder> directories;
 
-    // The directory this directory is in, null if in the root directory
+    // The folder this folder is in, null if in the root folder
     @ManyToOne
     private CloudFolder parent;
 
-    // Owner of the directory
+    // Owner of the folder
     @ManyToOne
     private User user;
 

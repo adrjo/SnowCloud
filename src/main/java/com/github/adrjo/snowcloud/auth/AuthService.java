@@ -52,7 +52,7 @@ public class AuthService implements UserDetailsService {
         final User user = new User(email, name, hashedPassword);
 
         repository.save(user);
-        cloudService.createRootDirectory(user);
+        cloudService.createRootFolder(user);
         return user;
     }
 

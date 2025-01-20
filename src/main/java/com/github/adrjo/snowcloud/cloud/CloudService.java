@@ -21,8 +21,8 @@ public class CloudService {
         this.folderRepository = folderRepository;
     }
 
-    public List<FileMeta> getFiles(String directory, User user) throws FileNotFoundException {
-        Optional<CloudFolder> folderOptional = fetchFolder(directory, user);
+    public List<FileMeta> getFiles(String path, User user) throws FileNotFoundException {
+        Optional<CloudFolder> folderOptional = fetchFolder(path, user);
 
         if (folderOptional.isEmpty()) {
             throw new FileNotFoundException("Folder does not exist.");
@@ -48,16 +48,16 @@ public class CloudService {
         if (path.endsWith("/")) {
             throw new IllegalArgumentException("Downloading folder is disallowed.");
         }
-        String directory = getDir(path);
+        String location = getDir(path);
 
-        Optional<CloudFolder> folder = fetchFolder(directory, user);
+        Optional<CloudFolder> folder = fetchFolder(location, user);
         if (folder.isEmpty()) {
             throw new FileNotFoundException("Folder does not exist.");
         }
 
-        String fileName = (!directory.isEmpty() ? path.substring(directory.length() + 1) : path);
+        String fileName = (!location.isEmpty() ? path.substring(location.length() + 1) : path);
 
-        Optional<CloudFile> file = fileRepository.findByDirectoryAndName(folder.get(), fileName);
+        Optional<CloudFile> file = fileRepository.findByFolderAndName(folder.get(), fileName);
 
         if (file.isEmpty()) {
             throw new FileNotFoundException("File not found");
@@ -72,7 +72,7 @@ public class CloudService {
      * @param name of the folder
      * @param location of the folder
      * @param user the owner of the folder
-     * @throws FileNotFoundException if the parent directory does not exist
+     * @throws FileNotFoundException if the parent folder does not exist
      */
     public CloudFolder createFolder(String name, String location, User user) throws FileNotFoundException {
         Optional<CloudFolder> folder = folderRepository.findByNameAndLocationAndUser(name, location, user);
@@ -93,7 +93,7 @@ public class CloudService {
         return newFolder;
     }
 
-    public void createRootDirectory(User user) {
+    public void createRootFolder(User user) {
         final CloudFolder root = new CloudFolder("", "", null, user);
         folderRepository.save(root);
     }
@@ -116,11 +116,11 @@ public class CloudService {
     }
 
     private String getDir(String path) {
-        int finalDirectoryIndex = path.lastIndexOf('/');
-        if (finalDirectoryIndex == -1) {
-            return ""; // root directory
+        int finalFolderIndex = path.lastIndexOf('/');
+        if (finalFolderIndex == -1) {
+            return ""; // root folder
         }
 
-        return path.substring(0, finalDirectoryIndex);
+        return path.substring(0, finalFolderIndex);
     }
 }

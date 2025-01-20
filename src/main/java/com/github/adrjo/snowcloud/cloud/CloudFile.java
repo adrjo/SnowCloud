@@ -12,7 +12,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @Table(
-        uniqueConstraints = @UniqueConstraint(columnNames = {"directory", "name"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"folder", "name"})
 )
 public class CloudFile {
 
@@ -26,17 +26,17 @@ public class CloudFile {
 
     @ManyToOne
     @JsonIgnore
-    private CloudFolder directory;
+    private CloudFolder folder;
 
     private byte[] fileData;
 
-    public CloudFile(String name, long size, String contentType, long lastModified, CloudFolder directory) {
+    public CloudFile(String name, long size, String contentType, long lastModified, CloudFolder folder) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.size = size;
         this.contentType = contentType;
         this.lastModified = lastModified;
-        this.directory = directory;
+        this.folder = folder;
         this.fileData = null;
     }
 
