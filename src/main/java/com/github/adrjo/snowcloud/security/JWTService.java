@@ -7,7 +7,9 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 
 @Component
@@ -25,6 +27,7 @@ public class JWTService {
         return JWT.create()
                 .withIssuer("auth0")
                 .withSubject(userId.toString())
+                .withExpiresAt(Instant.now().plusMillis(TimeUnit.DAYS.toMillis(1))) // expires in 24hs
                 .sign(algorithm);
     }
 

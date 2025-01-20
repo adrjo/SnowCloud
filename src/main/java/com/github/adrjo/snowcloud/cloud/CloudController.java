@@ -73,7 +73,7 @@ public class CloudController {
     }
 
     /**
-     * Creates a folder
+     * Creates a folder<
      * location needs to point to a folder that already exists, or be left empty (root folder)
      *
      * @param dto
