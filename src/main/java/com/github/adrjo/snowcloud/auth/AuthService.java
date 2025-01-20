@@ -36,15 +36,15 @@ public class AuthService implements UserDetailsService {
     }
 
     public User register(String email, String name, String pass) {
-        if (email.isBlank()) {
+        if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("E-mail may not be empty.");
         }
 
-        if (name.length() < MIN_LENGTH || name.length() > MAX_LENGTH) {
+        if (name == null || name.length() < MIN_LENGTH || name.length() > MAX_LENGTH) {
             throw new IllegalArgumentException(String.format("Username length must be between %s and %s characters long.", MIN_LENGTH, MAX_LENGTH));
         }
 
-        if (pass.length() < MIN_PASS_LENGTH) {
+        if (pass == null || pass.length() < MIN_PASS_LENGTH) {
             throw new IllegalArgumentException("Password too short! Min-length: " + MIN_PASS_LENGTH);
         }
 
