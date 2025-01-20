@@ -37,7 +37,7 @@ public class CloudService {
             metas.add(FileMeta.fromModel(meta));
         }
 
-        for (CloudFolder subDir : folder.getDirectories()) {
+        for (CloudFolder subDir : folder.getFolders()) {
             metas.add(FileMeta.fromModel(subDir));
         }
 

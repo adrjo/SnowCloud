@@ -27,7 +27,7 @@ public class CloudFolder {
     private List<CloudFile> files;
     // The folders stored in this folder
     @OneToMany(mappedBy = "parent")
-    private List<CloudFolder> directories;
+    private List<CloudFolder> folders;
 
     // The folder this folder is in, null if in the root folder
     @ManyToOne
@@ -42,7 +42,7 @@ public class CloudFolder {
         this.name = name;
         this.location = location;
         this.files = new ArrayList<>();
-        this.directories = new ArrayList<>();
+        this.folders = new ArrayList<>();
         this.parent = parent;
         this.user = user;
     }
