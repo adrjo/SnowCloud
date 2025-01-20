@@ -2,6 +2,7 @@ package com.github.adrjo.snowcloud.cloud;
 
 import com.github.adrjo.snowcloud.auth.User;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -59,7 +60,7 @@ public class CloudController {
     public ResponseEntity<?> downloadFile(@AuthenticationPrincipal User user, HttpServletRequest request) {
         String path = request.getRequestURI().substring("/download/".length());
         try {
-            CloudFile file = service.getFile(path, user);
+            CloudFile file = service.getFileData(path, user);
 
             //todo
             return ResponseEntity.ok(file);
@@ -82,7 +83,9 @@ public class CloudController {
     @PostMapping("/create-folder")
     public ResponseEntity<?> createFolder(@AuthenticationPrincipal User user, @RequestBody CreateFolderDto dto) {
         try {
-            service.createFolder(dto.name, dto.location, user);
+            CloudFolder folder = service.createFolder(dto.name, dto.location, user);
+
+            return ResponseEntity.ok(CreateFolderResponseDto.fromModel(folder));
         } catch (FileNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());
@@ -102,5 +105,17 @@ public class CloudController {
     public static class CreateFolderDto {
         private String name;
         private String location;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class CreateFolderResponseDto {
+        private String name;
+        private String location;
+        private String user;
+
+        public static CreateFolderResponseDto fromModel(CloudFolder folder) {
+            return new CreateFolderResponseDto(folder.getName(), folder.getLocation(), folder.getUser().getUsername());
+        }
     }
 }

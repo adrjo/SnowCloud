@@ -11,10 +11,11 @@ public class FileMeta {
     private String contentType;
     private long lastModified;
 
-    // the directory the file is in
-    private String directory;
+    public static FileMeta fromModel(FileMetaProjection file) {
+        return new FileMeta(file.getName(), file.getSize(), file.getContentType(), file.getLastModified());
+    }
 
-    public static FileMeta fromModel(CloudFile file) {
-        return new FileMeta(file.getName(), file.getSize(), file.getContentType(), file.getLastModified(), file.getDirectory());
+    public static FileMeta fromModel(CloudFolder folder) {
+        return new FileMeta(folder.getName(), 0, "folder", -1);
     }
 }

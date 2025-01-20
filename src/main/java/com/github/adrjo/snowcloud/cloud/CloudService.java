@@ -22,41 +22,48 @@ public class CloudService {
     }
 
     public List<FileMeta> getFiles(String directory, User user) throws FileNotFoundException {
-        List<CloudFile> files = fileRepository.findFilesInDirectory(directory, user);
-        if (files == null) {
-            throw new FileNotFoundException("Directory not found");
-        }
-        List<FileMeta> meta = new ArrayList<>();
-        for (CloudFile file : files) {
-            meta.add(FileMeta.fromModel(file));
+        Optional<CloudFolder> folderOptional = fetchFolder(directory, user);
+
+        if (folderOptional.isEmpty()) {
+            throw new FileNotFoundException("Folder does not exist.");
         }
 
-        return meta;
+        CloudFolder folder = folderOptional.get();
+
+        List<FileMetaProjection> files = fileRepository.findFileMetadataInFolder(folder);
+
+        List<FileMeta> metas = new ArrayList<>();
+        for (FileMetaProjection meta : files) {
+            metas.add(FileMeta.fromModel(meta));
+        }
+
+        for (CloudFolder subDir : folder.getDirectories()) {
+            metas.add(FileMeta.fromModel(subDir));
+        }
+
+        return metas;
     }
 
-    public CloudFile getFile(String path, User user) throws FileNotFoundException {
+    public CloudFile getFileData(String path, User user) throws FileNotFoundException {
         if (path.endsWith("/")) {
             throw new IllegalArgumentException("Downloading folder is disallowed.");
         }
         String directory = getDir(path);
+
+        Optional<CloudFolder> folder = fetchFolder(directory, user);
+        if (folder.isEmpty()) {
+            throw new FileNotFoundException("Folder does not exist.");
+        }
+
         String fileName = (!directory.isEmpty() ? path.substring(directory.length() + 1) : path);
 
-        Optional<CloudFile> file = fileRepository.findByDirectoryAndNameAndUser(directory, fileName, user);
+        Optional<CloudFile> file = fileRepository.findByDirectoryAndName(folder.get(), fileName);
 
         if (file.isEmpty()) {
             throw new FileNotFoundException("File not found");
         }
 
         return file.get();
-    }
-
-    private String getDir(String path) {
-        int finalDirectoryIndex = path.lastIndexOf('/');
-        if (finalDirectoryIndex == -1) {
-            return ""; // root directory
-        }
-
-        return path.substring(0, finalDirectoryIndex);
     }
 
     /**
@@ -67,18 +74,14 @@ public class CloudService {
      * @param user the owner of the folder
      * @throws FileNotFoundException if the parent directory does not exist
      */
-    public void createFolder(String name, String location, User user) throws FileNotFoundException {
+    public CloudFolder createFolder(String name, String location, User user) throws FileNotFoundException {
         Optional<CloudFolder> folder = folderRepository.findByNameAndLocationAndUser(name, location, user);
 
         if (folder.isPresent()) {
             throw new IllegalArgumentException("Folder already exists.");
         }
 
-        String[] parentParts = location.split("/");
-        String parentName = parentParts[parentParts.length - 1];
-        String parentLocation = String.join("", Arrays.copyOf(parentParts, parentParts.length - 1));
-
-        Optional<CloudFolder> parent = folderRepository.findByNameAndLocationAndUser(parentName, parentLocation, user);
+        Optional<CloudFolder> parent = fetchFolder(location, user);
 
         if (parent.isEmpty()) {
             throw new FileNotFoundException("Parent folder does not exist!");
@@ -86,10 +89,38 @@ public class CloudService {
 
         final CloudFolder newFolder = new CloudFolder(name, location, parent.get(), user);
         folderRepository.save(newFolder);
+
+        return newFolder;
     }
 
     public void createRootDirectory(User user) {
         final CloudFolder root = new CloudFolder("", "", null, user);
         folderRepository.save(root);
+    }
+
+    private Optional<CloudFolder> fetchFolder(String location, User user) {
+        String parentName = getFolderName(location);
+        String parentLocation = getFolderLocation(location);
+
+        return folderRepository.findByNameAndLocationAndUser(parentName, parentLocation, user);
+    }
+
+    private String getFolderName(String path) {
+        String[] parentParts = path.split("/");
+        return parentParts[parentParts.length - 1];
+    }
+
+    private String getFolderLocation(String path) {
+        String[] parentParts = path.split("/");
+        return String.join("", Arrays.copyOf(parentParts, parentParts.length - 1));
+    }
+
+    private String getDir(String path) {
+        int finalDirectoryIndex = path.lastIndexOf('/');
+        if (finalDirectoryIndex == -1) {
+            return ""; // root directory
+        }
+
+        return path.substring(0, finalDirectoryIndex);
     }
 }

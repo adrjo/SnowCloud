@@ -1,5 +1,6 @@
 package com.github.adrjo.snowcloud.auth;
 
+import com.github.adrjo.snowcloud.cloud.CloudService;
 import com.github.adrjo.snowcloud.security.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +16,8 @@ import java.util.UUID;
 @Service
 public class AuthService implements UserDetailsService {
     private final AuthRepository repository;
+    private final CloudService cloudService;
+
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
 
@@ -24,8 +27,10 @@ public class AuthService implements UserDetailsService {
     private static final int MIN_PASS_LENGTH = 8;
 
     @Autowired
-    public AuthService(AuthRepository repository, PasswordEncoder passwordEncoder, JWTService jwtService) {
+    public AuthService(AuthRepository repository, CloudService cloudService, PasswordEncoder passwordEncoder, JWTService jwtService) {
         this.repository = repository;
+        this.cloudService = cloudService;
+
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
@@ -47,6 +52,7 @@ public class AuthService implements UserDetailsService {
         final User user = new User(email, name, hashedPassword);
 
         repository.save(user);
+        cloudService.createRootDirectory(user);
         return user;
     }
 

@@ -2,6 +2,7 @@ package com.github.adrjo.snowcloud.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.adrjo.snowcloud.cloud.CloudFile;
+import com.github.adrjo.snowcloud.cloud.CloudFolder;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -32,7 +33,7 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
-    private List<CloudFile> files;
+    private List<CloudFolder> files;
 
     public User(String email, String username, String hashedPassword) {
         this.id = UUID.randomUUID();
