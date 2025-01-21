@@ -30,14 +30,14 @@ public class CloudFile {
 
     private byte[] fileData;
 
-    public CloudFile(String name, long size, String contentType, long lastModified, CloudFolder folder) {
+    public CloudFile(String name, byte[] fileData, long size, String contentType, long lastModified, CloudFolder folder) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.size = size;
         this.contentType = contentType;
         this.lastModified = lastModified;
         this.folder = folder;
-        this.fileData = null;
+        this.fileData = fileData;
     }
 
     public String getLastModifiedFormatted() {

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -95,7 +96,7 @@ public class CloudService {
     }
 
 
-    public FileMeta uploadFile(MultipartFile uploadedFile, String location, String customName, User user) {
+    public FileMeta uploadFile(MultipartFile uploadedFile, String location, String customName, User user) throws IOException {
         if (uploadedFile == null) {
             throw new IllegalArgumentException("File may not be null.");
         }
@@ -114,7 +115,14 @@ public class CloudService {
 
         CloudFolder folder = folderOptional.get();
 
-        final CloudFile file = new CloudFile(fileName, uploadedFile.getSize(), uploadedFile.getContentType(), System.currentTimeMillis(), folder);
+        final CloudFile file = new CloudFile(
+                fileName,
+                uploadedFile.getBytes(),
+                uploadedFile.getSize(),
+                uploadedFile.getContentType(),
+                System.currentTimeMillis(),
+                folder
+        );
 
         fileRepository.save(file);
         return FileMeta.fromModel(file);

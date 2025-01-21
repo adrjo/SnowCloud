@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -113,6 +114,9 @@ public class CloudController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                     .body(e.getMessage());
+        } catch (IOException e) {
+            return ResponseEntity.badRequest()
+                    .body("Invalid file data");
         }
     }
 
