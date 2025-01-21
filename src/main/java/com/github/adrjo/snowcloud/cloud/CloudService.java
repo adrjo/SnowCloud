@@ -115,6 +115,11 @@ public class CloudService {
 
         CloudFolder folder = folderOptional.get();
 
+        var fileExists = fileRepository.findByFolderAndName(folder, fileName);
+        if (fileExists.isPresent()) {
+            throw new IllegalArgumentException("'" + fileExists.get().getName() + "' already exists in this folder.");
+        }
+
         final CloudFile file = new CloudFile(
                 fileName,
                 uploadedFile.getBytes(),
