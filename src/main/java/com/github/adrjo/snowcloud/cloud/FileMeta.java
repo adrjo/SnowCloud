@@ -15,6 +15,10 @@ public class FileMeta {
         return new FileMeta(file.getName(), file.getSize(), file.getContentType(), file.getLastModified());
     }
 
+    public static FileMeta fromModel(CloudFile file) {
+        return new FileMeta(file.getName(), file.getSize(), file.getContentType(), file.getLastModified());
+    }
+
     public static FileMeta fromModel(CloudFolder folder) {
         return new FileMeta(folder.getName(), 0, "folder", -1);
     }

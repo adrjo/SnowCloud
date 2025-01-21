@@ -3,6 +3,7 @@ package com.github.adrjo.snowcloud.cloud;
 import com.github.adrjo.snowcloud.auth.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -91,6 +92,32 @@ public class CloudService {
         folderRepository.save(newFolder);
 
         return newFolder;
+    }
+
+
+    public FileMeta uploadFile(MultipartFile uploadedFile, String location, String customName, User user) {
+        if (uploadedFile == null) {
+            throw new IllegalArgumentException("File may not be null.");
+        }
+
+        Optional<CloudFolder> folderOptional = fetchFolder(location, user);
+
+        if (folderOptional.isEmpty()) {
+            throw new IllegalArgumentException("The folder at path: '" + location + "' does not exist.");
+        }
+
+        String fileName = uploadedFile.getOriginalFilename();
+
+        if (customName != null && !customName.isBlank()) {
+            fileName = customName;
+        }
+
+        CloudFolder folder = folderOptional.get();
+
+        final CloudFile file = new CloudFile(fileName, uploadedFile.getSize(), uploadedFile.getContentType(), System.currentTimeMillis(), folder);
+
+        fileRepository.save(file);
+        return FileMeta.fromModel(file);
     }
 
     public void createRootFolder(User user) {

@@ -102,8 +102,18 @@ public class CloudController {
     }
 
     @PostMapping("/upload-file")
-    public ResponseEntity<?> uploadFile(MultipartFile file) {
-        throw new IllegalArgumentException("Not implemented");
+    public ResponseEntity<?> uploadFile(@AuthenticationPrincipal User user,
+                                        @RequestParam("file") MultipartFile file,
+                                        @RequestParam("location") String location,
+                                        @RequestParam(value = "customName", required = false) String customName) {
+        try {
+            FileMeta meta = service.uploadFile(file, location, customName, user);
+
+            return ResponseEntity.ok(meta);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(e.getMessage());
+        }
     }
 
     @Data
