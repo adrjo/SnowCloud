@@ -30,8 +30,8 @@ public class CloudController {
     }
 
     /**
-     * Get all the files in a user folder
-     * Only file meta-data is sent here, no contents
+     * Get all the files in a user folder <br>
+     * Only file meta-data is sent here, no contents <br>
      * to get file contents, use CloudController::downloadFile
      *
      * @param user the user sending the request

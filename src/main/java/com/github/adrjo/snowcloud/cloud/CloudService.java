@@ -162,7 +162,7 @@ public class CloudService {
     }
 
     /**
-     * Creates the original root folder for a user
+     * Creates the original root folder for a user <br>
      * Called on user registration
      *
      * @param user the user to create the folder for.
