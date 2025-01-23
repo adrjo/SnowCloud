@@ -35,6 +35,14 @@ public class AuthService implements UserDetailsService {
         this.jwtService = jwtService;
     }
 
+    /**
+     * Registers a new user
+     *
+     * @param email user email
+     * @param name user name
+     * @param pass user password
+     * @return the created user data
+     */
     public User register(String email, String name, String pass) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("E-mail may not be empty.");
@@ -56,6 +64,14 @@ public class AuthService implements UserDetailsService {
         return user;
     }
 
+    /**
+     * Logs into a user
+     *
+     * @param name
+     * @param password
+     * @return the generated jwt-auth token
+     * @throws AuthenticationException on invalid credentials
+     */
     public String login(String name, String password) throws AuthenticationException {
         User user = (User) loadUserByUsername(name);
 

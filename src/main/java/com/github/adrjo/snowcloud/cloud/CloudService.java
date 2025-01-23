@@ -20,6 +20,16 @@ public class CloudService {
         this.folderRepository = folderRepository;
     }
 
+
+    /**
+     * Gets meta-data for the files and folders in the folder located at the path specified.
+     * No file or folder contents are sent here.
+     *
+     * @param path the full path to the folder
+     * @param user the user sending the request
+     * @return list of file and folder meta
+     * @throws FileNotFoundException if the folder does not exist
+     */
     public List<FileMeta> getFiles(String path, User user) throws FileNotFoundException {
         Optional<CloudFolder> folderOptional = fetchFolder(path, user);
 
@@ -43,6 +53,15 @@ public class CloudService {
         return metas;
     }
 
+    /**
+     * Gets the full file data for the file located at the path specified.
+     *
+     * @param path the filepath
+     * @param user the user sending the request
+     * @return CloudFile file data
+     * @throws FileNotFoundException if the folder or file does not exist.
+     * @throws IllegalArgumentException if trying to download a folder
+     */
     public CloudFile getFileData(String path, User user) throws FileNotFoundException {
         if (path.endsWith("/")) {
             throw new IllegalArgumentException("Downloading folder is disallowed.");
@@ -66,12 +85,13 @@ public class CloudService {
     }
 
     /**
-     * Checks if folder already exists, makes sure that its parent exists, then creates the folder
+     * Tries to create a new folder.
      *
      * @param name of the folder
      * @param location of the folder
      * @param user the owner of the folder
      * @throws FileNotFoundException if the parent folder does not exist
+     * @throws IllegalArgumentException if the folder already exists
      */
     public CloudFolder createFolder(String name, String location, User user) throws FileNotFoundException {
         Optional<CloudFolder> folder = folderRepository.findByNameAndLocationAndUser(name, location, user);
@@ -93,6 +113,17 @@ public class CloudService {
     }
 
 
+    /**
+     * Tries to upload a file
+     *
+     * @param uploadedFile the file to be uploaded
+     * @param location folder in which the file should be uploaded
+     * @param customName what name the file should use. if empty uses the original file name of the uploaded file
+     * @param user the user uploading the file
+     * @return FileMeta of the uploaded file
+     * @throws IllegalArgumentException if the file has errors or already exists
+     * @throws IOException if error in the file bytes
+     */
     public FileMeta uploadFile(MultipartFile uploadedFile, String location, String customName, User user) throws IOException {
         if (uploadedFile == null) {
             throw new IllegalArgumentException("File may not be null.");
@@ -130,18 +161,25 @@ public class CloudService {
         return FileMeta.fromModel(file);
     }
 
+    /**
+     * Creates the original root folder for a user
+     * Called on user registration
+     *
+     * @param user the user to create the folder for.
+     */
     public void createRootFolder(User user) {
         final CloudFolder root = new CloudFolder("", "", null, user);
         folderRepository.save(root);
     }
 
-    private Optional<CloudFolder> fetchFolder(String location, User user) {
-        String parentName = getFolderName(location);
-        String parentLocation = getFolderLocation(location);
-
-        return folderRepository.findByNameAndLocationAndUser(parentName, parentLocation, user);
-    }
-
+    /**
+     * Tries to delete a file
+     *
+     * @param user the user sending the request
+     * @param fileId of the file to be deleted
+     * @throws FileNotFoundException if the file does not exist
+     * @throws IllegalArgumentException if trying to delete other users files
+     */
     public void deleteFile(User user, UUID fileId) throws FileNotFoundException {
         Optional<CloudFile> fileOpt = fileRepository.findById(fileId);
 
@@ -160,6 +198,14 @@ public class CloudService {
         fileRepository.delete(file);
     }
 
+    /**
+     * Tries to delete a folder
+     *
+     * @param user the user sending the request
+     * @param id of the folder to be deleted
+     * @throws FileNotFoundException if the folder does not exist
+     * @throws IllegalArgumentException if trying to delete other users folder
+     */
     public void deleteFolder(User user, UUID id) throws FileNotFoundException {
         Optional<CloudFolder> folderOpt = folderRepository.findById(id);
 
@@ -174,6 +220,20 @@ public class CloudService {
         }
 
         folderRepository.delete(folder); // folder contents should cascade delete automatically
+    }
+
+    /**
+     * Helper function for getting a folder
+     *
+     * @param location of the folder
+     * @param user the owner of the folder
+     * @return CloudFolder
+     */
+    private Optional<CloudFolder> fetchFolder(String location, User user) {
+        String parentName = getFolderName(location);
+        String parentLocation = getFolderLocation(location);
+
+        return folderRepository.findByNameAndLocationAndUser(parentName, parentLocation, user);
     }
 
     private String getFolderName(String path) {
