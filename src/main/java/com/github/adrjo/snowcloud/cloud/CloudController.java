@@ -15,6 +15,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
+
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
 public class CloudController {
@@ -46,7 +50,7 @@ public class CloudController {
 
             return ResponseEntity.ok(files);
         } catch (FileNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
         }
     }
@@ -72,7 +76,7 @@ public class CloudController {
                     .header(HttpHeaders.LAST_MODIFIED, file.getLastModifiedFormatted())
                     .body(file.getFileData()); // no content-length header needed, spring sets this automatically (and things break if set manually)
         } catch (FileNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
@@ -108,7 +112,7 @@ public class CloudController {
 
             return ResponseEntity.ok(CreateFolderResponseDto.fromModel(folder));
         } catch (FileNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity
@@ -133,6 +137,27 @@ public class CloudController {
             return ResponseEntity.badRequest()
                     .body("Invalid file data");
         }
+    }
+
+
+    @DeleteMapping("/delete-file")
+    public ResponseEntity<?> deleteFile(@AuthenticationPrincipal User user, @RequestBody GenericDeleteByIdDto dto) {
+        try {
+            service.deleteFile(user, dto.getId());
+
+            return ResponseEntity.ok("Success");
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(FORBIDDEN)
+                    .body(e.getMessage());
+        }
+    }
+
+    @Data
+    public static class GenericDeleteByIdDto {
+        private UUID id;
     }
 
     @Data

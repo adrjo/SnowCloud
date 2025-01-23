@@ -23,10 +23,10 @@ public class CloudFolder {
     private String location;
 
     // The files stored in this folder
-    @OneToMany(mappedBy = "folder")
+    @OneToMany(mappedBy = "folder", cascade = CascadeType.REMOVE)
     private List<CloudFile> files;
     // The folders stored in this folder
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE)
     private List<CloudFolder> folders;
 
     // The folder this folder is in, null if in the root folder

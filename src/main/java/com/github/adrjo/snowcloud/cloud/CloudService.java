@@ -7,10 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CloudService {
@@ -145,6 +142,24 @@ public class CloudService {
         return folderRepository.findByNameAndLocationAndUser(parentName, parentLocation, user);
     }
 
+    public void deleteFile(User user, UUID fileId) throws FileNotFoundException {
+        Optional<CloudFile> fileOpt = fileRepository.findById(fileId);
+
+        if (fileOpt.isEmpty()) {
+            throw new FileNotFoundException("File not found.");
+        }
+
+        final CloudFile file = fileOpt.get();
+
+        User fileOwner = file.getFolder().getUser();
+
+        if (!fileOwner.getId().equals(user.getId())) {
+            throw new IllegalArgumentException("Cannot delete other users files.");
+        }
+
+        fileRepository.delete(file);
+    }
+
     private String getFolderName(String path) {
         String[] parentParts = path.split("/");
         return parentParts[parentParts.length - 1];
@@ -163,4 +178,6 @@ public class CloudService {
 
         return path.substring(0, finalFolderIndex);
     }
+
+
 }

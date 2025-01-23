@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface CloudFileRepository extends JpaRepository<CloudFile, UUID> {
 
-    @Query("SELECT f.name AS name, f.size AS size, f.contentType AS contentType, f.lastModified AS lastModified " +
+    @Query("SELECT f.id as id, f.name AS name, f.size AS size, f.contentType AS contentType, f.lastModified AS lastModified " +
             "FROM CloudFile f WHERE f.folder = :folder")
     List<FileMetaProjection> findFileMetadataInFolder(@Param("folder") CloudFolder folder);
 
