@@ -155,6 +155,21 @@ public class CloudController {
         }
     }
 
+    @DeleteMapping("/delete-folder")
+    public ResponseEntity<?> deleteFolder(@AuthenticationPrincipal User user, @RequestBody GenericDeleteByIdDto dto) {
+        try {
+            service.deleteFolder(user, dto.getId());
+
+            return ResponseEntity.ok("Success");
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(FORBIDDEN)
+                    .body(e.getMessage());
+        }
+    }
+
     @Data
     public static class GenericDeleteByIdDto {
         private UUID id;

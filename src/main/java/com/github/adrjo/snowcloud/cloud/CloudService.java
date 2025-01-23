@@ -160,6 +160,22 @@ public class CloudService {
         fileRepository.delete(file);
     }
 
+    public void deleteFolder(User user, UUID id) throws FileNotFoundException {
+        Optional<CloudFolder> folderOpt = folderRepository.findById(id);
+
+        if (folderOpt.isEmpty()) {
+            throw new FileNotFoundException("Folder not found");
+        }
+
+        final CloudFolder folder = folderOpt.get();
+
+        if (!folder.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("Cannot delete other users folders.");
+        }
+
+        folderRepository.delete(folder); // folder contents should cascade delete automatically
+    }
+
     private String getFolderName(String path) {
         String[] parentParts = path.split("/");
         return parentParts[parentParts.length - 1];
@@ -178,6 +194,4 @@ public class CloudService {
 
         return path.substring(0, finalFolderIndex);
     }
-
-
 }
