@@ -1,6 +1,7 @@
 package com.github.adrjo.snowcloud.cloud;
 
 import com.github.adrjo.snowcloud.auth.User;
+import com.github.adrjo.snowcloud.util.Util;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -67,7 +68,7 @@ public class CloudController {
         try {
             CloudFile file = service.getFileData(path, user);
 
-            boolean inline = isInlineViewable(file.getContentType());
+            boolean inline = Util.isInlineViewable(file.getContentType());
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, (inline ? "inline" : "attachment") + "; filename=\"" + file.getName() + "\"")
@@ -81,19 +82,6 @@ public class CloudController {
             return ResponseEntity.badRequest()
                     .body(e.getMessage());
         }
-    }
-
-    /**
-     * Whether the file should be viewable in the browser or directly downloaded
-     * MIGHT BE DANGEROUS, limited to only a few formats for now
-     *
-     * @param contentType the content type of the file
-     * @return true if the file should be viewable in browser, false otherwise
-     */
-    private boolean isInlineViewable(String contentType) {
-        return contentType.startsWith("image/")
-                || contentType.equals("application/pdf")
-                || contentType.equals("text/plain");
     }
 
     /**
