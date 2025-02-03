@@ -21,8 +21,8 @@ public class AuthService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
 
-    private static final int MAX_LENGTH = 16;
-    private static final int MIN_LENGTH = 3;
+    private static final int MAX_USERNAME_LENGTH = 16;
+    private static final int MIN_USERNAME_LENGTH = 3;
 
     private static final int MIN_PASS_LENGTH = 8;
 
@@ -48,8 +48,11 @@ public class AuthService implements UserDetailsService {
             throw new IllegalArgumentException("E-mail may not be empty.");
         }
 
-        if (name == null || name.length() < MIN_LENGTH || name.length() > MAX_LENGTH) {
-            throw new IllegalArgumentException(String.format("Username length must be between %s and %s characters long.", MIN_LENGTH, MAX_LENGTH));
+        if (name == null || name.length() < MIN_USERNAME_LENGTH || name.length() > MAX_USERNAME_LENGTH) {
+            throw new IllegalArgumentException(
+                    String.format("Username length must be between %s and %s characters long.",
+                            MIN_USERNAME_LENGTH,
+                            MAX_USERNAME_LENGTH));
         }
 
         if (pass == null || pass.length() < MIN_PASS_LENGTH) {
