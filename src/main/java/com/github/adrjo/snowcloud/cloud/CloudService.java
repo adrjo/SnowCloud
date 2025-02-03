@@ -31,13 +31,8 @@ public class CloudService {
      * @throws FileNotFoundException if the folder does not exist
      */
     public List<FileMeta> getFiles(String path, User user) throws FileNotFoundException {
-        Optional<CloudFolder> folderOptional = fetchFolder(path, user);
-
-        if (folderOptional.isEmpty()) {
-            throw new FileNotFoundException("Folder does not exist.");
-        }
-
-        CloudFolder folder = folderOptional.get();
+        CloudFolder folder = fetchFolder(path, user)
+                .orElseThrow(() -> new FileNotFoundException("Folder does not exist."));
 
         List<FileMetaProjection> files = fileRepository.findFileMetadataInFolder(folder);
 
@@ -68,20 +63,13 @@ public class CloudService {
         }
         String location = getDir(path);
 
-        Optional<CloudFolder> folder = fetchFolder(location, user);
-        if (folder.isEmpty()) {
-            throw new FileNotFoundException("Folder does not exist.");
-        }
+        CloudFolder folder = fetchFolder(location, user)
+                .orElseThrow(() -> new FileNotFoundException("Folder does not exist."));
 
         String fileName = (!location.isEmpty() ? path.substring(location.length() + 1) : path);
 
-        Optional<CloudFile> file = fileRepository.findByFolderAndName(folder.get(), fileName);
-
-        if (file.isEmpty()) {
-            throw new FileNotFoundException("File not found");
-        }
-
-        return file.get();
+        return fileRepository.findByFolderAndName(folder, fileName)
+                .orElseThrow(() -> new FileNotFoundException("File not found"));
     }
 
     /**
@@ -100,13 +88,10 @@ public class CloudService {
             throw new IllegalArgumentException("Folder already exists.");
         }
 
-        Optional<CloudFolder> parent = fetchFolder(location, user);
+        CloudFolder parent = fetchFolder(location, user)
+                .orElseThrow(() -> new FileNotFoundException("Parent folder does not exist!"));
 
-        if (parent.isEmpty()) {
-            throw new FileNotFoundException("Parent folder does not exist!");
-        }
-
-        final CloudFolder newFolder = new CloudFolder(name, location, parent.get(), user);
+        final CloudFolder newFolder = new CloudFolder(name, location, parent, user);
         folderRepository.save(newFolder);
 
         return newFolder;
@@ -129,19 +114,13 @@ public class CloudService {
             throw new IllegalArgumentException("File may not be null.");
         }
 
-        Optional<CloudFolder> folderOptional = fetchFolder(location, user);
-
-        if (folderOptional.isEmpty()) {
-            throw new IllegalArgumentException("The folder at path: '" + location + "' does not exist.");
-        }
+        CloudFolder folder = fetchFolder(location, user)
+                .orElseThrow(() -> new IllegalArgumentException("The folder at path: '" + location + "' does not exist."));
 
         String fileName = uploadedFile.getOriginalFilename();
-
         if (customName != null && !customName.isBlank()) {
             fileName = customName;
         }
-
-        CloudFolder folder = folderOptional.get();
 
         var fileExists = fileRepository.findByFolderAndName(folder, fileName);
         if (fileExists.isPresent()) {
@@ -181,13 +160,8 @@ public class CloudService {
      * @throws IllegalArgumentException if trying to delete other users files
      */
     public void deleteFile(User user, UUID fileId) throws FileNotFoundException {
-        Optional<CloudFile> fileOpt = fileRepository.findById(fileId);
-
-        if (fileOpt.isEmpty()) {
-            throw new FileNotFoundException("File not found.");
-        }
-
-        final CloudFile file = fileOpt.get();
+        CloudFile file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new FileNotFoundException("File not found."));
 
         User fileOwner = file.getFolder().getUser();
 
@@ -207,13 +181,8 @@ public class CloudService {
      * @throws IllegalArgumentException if trying to delete other users folder
      */
     public void deleteFolder(User user, UUID id) throws FileNotFoundException {
-        Optional<CloudFolder> folderOpt = folderRepository.findById(id);
-
-        if (folderOpt.isEmpty()) {
-            throw new FileNotFoundException("Folder not found");
-        }
-
-        final CloudFolder folder = folderOpt.get();
+        CloudFolder folder = folderRepository.findById(id)
+                .orElseThrow(() -> new FileNotFoundException("Folder not found"));
 
         if (!folder.getUser().getId().equals(user.getId())) {
             throw new IllegalArgumentException("Cannot delete other users folders.");

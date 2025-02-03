@@ -38,13 +38,8 @@ public class ShareService {
             throw new IllegalArgumentException("Expiry minutes must be a positive integer.");
         }
 
-        Optional<CloudFile> fileOpt = fileRepository.findById(fileId);
-
-        if (fileOpt.isEmpty()) {
-            throw new FileNotFoundException("File not found.");
-        }
-
-        final CloudFile file = fileOpt.get();
+        CloudFile file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new FileNotFoundException("File not found."));
 
         User fileOwner = file.getFolder().getUser();
 
@@ -67,13 +62,8 @@ public class ShareService {
      * @throws IllegalArgumentException if the file has expired
      */
     public CloudFile getTemporaryFile(UUID tokenId) throws FileNotFoundException {
-        Optional<TemporaryFile> opt = shareRepository.findById(tokenId);
-
-        if (opt.isEmpty()) {
-            throw new FileNotFoundException("File expired or does not exist.");
-        }
-
-        TemporaryFile file = opt.get();
+        TemporaryFile file = shareRepository.findById(tokenId)
+                .orElseThrow(() -> new FileNotFoundException("File expired or does not exist."));
 
         if (System.currentTimeMillis() > file.getExpiresAt()) {
             shareRepository.delete(file);
