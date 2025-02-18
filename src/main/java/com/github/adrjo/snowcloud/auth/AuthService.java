@@ -106,7 +106,14 @@ public class AuthService implements UserDetailsService {
         }
     }
 
-    public void createOauthUser(String username, String oidcId) {
+    /**
+     * Creates a SnowCloud user via oidc
+     * Currently only supports GitHub
+     *
+     * @param username the username fetched from GitHub
+     * @param oidcId the oidcId for the GitHub user
+     */
+    public void createOAuthUser(String username, String oidcId) {
         Optional<User> existingUser = repository.findByOidcId(oidcId);
 
         if (existingUser.isPresent()) {

@@ -29,6 +29,6 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
         String oidcId = user.getName();
         String username = user.getAttribute("login");
 
-        authService.createOauthUser(username, oidcId);
+        authService.createOAuthUser(username, oidcId);
     }
 }
