@@ -105,4 +105,16 @@ public class AuthService implements UserDetailsService {
             return Optional.empty();
         }
     }
+
+    public void createOauthUser(String username, String oidcId) {
+        Optional<User> existingUser = repository.findByOidcId(oidcId);
+
+        if (existingUser.isPresent()) {
+            return;
+        }
+
+        final User openIdcUser = User.createOidcUser(username, oidcId, "github.com"); // TODO: find a better home for provider
+        repository.save(openIdcUser);
+        cloudService.createRootFolder(openIdcUser);
+    }
 }

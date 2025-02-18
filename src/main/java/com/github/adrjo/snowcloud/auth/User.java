@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,11 +19,14 @@ import java.util.UUID;
 
 @Entity(name = "cloud_user")
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 public class User implements UserDetails {
 
     @Id
     private UUID id;
+
+    private String oidcId;
 
     @Column(unique = true)
     private String email;
@@ -40,6 +44,16 @@ public class User implements UserDetails {
         this.username = username;
         this.hashedPassword = hashedPassword;
         this.files = new ArrayList<>();
+    }
+
+    public static User createOidcUser(String username, String oidcId, String provider) {
+        return new User(UUID.randomUUID(),
+                oidcId,
+                null,
+                username + "@" + provider,
+                null,
+                new ArrayList<>()
+                );
     }
 
     @Override
