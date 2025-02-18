@@ -1,4 +1,4 @@
-package com.github.adrjo.snowcloud.cloud;
+package com.github.adrjo.snowcloud.cloud.folder;
 
 import com.github.adrjo.snowcloud.auth.User;
 import org.springframework.data.jpa.repository.JpaRepository;

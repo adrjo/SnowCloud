@@ -1,6 +1,12 @@
 package com.github.adrjo.snowcloud.cloud;
 
 import com.github.adrjo.snowcloud.auth.User;
+import com.github.adrjo.snowcloud.cloud.file.CloudFile;
+import com.github.adrjo.snowcloud.cloud.file.CloudFileRepository;
+import com.github.adrjo.snowcloud.cloud.file.FileMeta;
+import com.github.adrjo.snowcloud.cloud.file.FileMetaProjection;
+import com.github.adrjo.snowcloud.cloud.folder.CloudFolder;
+import com.github.adrjo.snowcloud.cloud.folder.CloudFolderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

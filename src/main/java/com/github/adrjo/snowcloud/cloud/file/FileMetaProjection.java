@@ -1,4 +1,4 @@
-package com.github.adrjo.snowcloud.cloud;
+package com.github.adrjo.snowcloud.cloud.file;
 
 import java.util.UUID;
 

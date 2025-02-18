@@ -1,6 +1,7 @@
-package com.github.adrjo.snowcloud.cloud;
+package com.github.adrjo.snowcloud.cloud.folder;
 
 import com.github.adrjo.snowcloud.auth.User;
+import com.github.adrjo.snowcloud.cloud.file.CloudFile;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;

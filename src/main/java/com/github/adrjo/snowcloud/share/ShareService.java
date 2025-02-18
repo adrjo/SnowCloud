@@ -1,14 +1,13 @@
 package com.github.adrjo.snowcloud.share;
 
 import com.github.adrjo.snowcloud.auth.User;
-import com.github.adrjo.snowcloud.cloud.CloudFile;
-import com.github.adrjo.snowcloud.cloud.CloudFileRepository;
+import com.github.adrjo.snowcloud.cloud.file.CloudFile;
+import com.github.adrjo.snowcloud.cloud.file.CloudFileRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service

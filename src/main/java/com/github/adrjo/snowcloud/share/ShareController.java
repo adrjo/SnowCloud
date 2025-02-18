@@ -1,7 +1,7 @@
 package com.github.adrjo.snowcloud.share;
 
 import com.github.adrjo.snowcloud.auth.User;
-import com.github.adrjo.snowcloud.cloud.CloudFile;
+import com.github.adrjo.snowcloud.cloud.file.CloudFile;
 import com.github.adrjo.snowcloud.util.Util;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;

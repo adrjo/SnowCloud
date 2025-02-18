@@ -1,5 +1,6 @@
-package com.github.adrjo.snowcloud.cloud;
+package com.github.adrjo.snowcloud.cloud.file;
 
+import com.github.adrjo.snowcloud.cloud.folder.CloudFolder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

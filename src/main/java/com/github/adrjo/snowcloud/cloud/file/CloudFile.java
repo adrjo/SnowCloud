@@ -1,6 +1,7 @@
-package com.github.adrjo.snowcloud.cloud;
+package com.github.adrjo.snowcloud.cloud.file;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.adrjo.snowcloud.cloud.folder.CloudFolder;
 import com.github.adrjo.snowcloud.util.DateUtil;
 import jakarta.persistence.*;
 import lombok.Data;

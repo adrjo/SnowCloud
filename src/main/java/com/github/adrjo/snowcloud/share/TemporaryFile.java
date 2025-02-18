@@ -1,6 +1,6 @@
 package com.github.adrjo.snowcloud.share;
 
-import com.github.adrjo.snowcloud.cloud.CloudFile;
+import com.github.adrjo.snowcloud.cloud.file.CloudFile;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;

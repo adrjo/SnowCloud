@@ -1,7 +1,7 @@
 package com.github.adrjo.snowcloud.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.github.adrjo.snowcloud.cloud.CloudFolder;
+import com.github.adrjo.snowcloud.cloud.folder.CloudFolder;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
