@@ -55,13 +55,13 @@ public class ShareService {
     /**
      * Tries to fetch a shared file
      *
-     * @param tokenId the id for the shared file
+     * @param shareId the id for the shared file
      * @return CloudFile data
      * @throws FileNotFoundException if the file was not found in the database
      * @throws IllegalArgumentException if the file has expired
      */
-    public CloudFile getTemporaryFile(UUID tokenId) throws FileNotFoundException {
-        TemporaryFile file = shareRepository.findById(tokenId)
+    public CloudFile getTemporaryFile(UUID shareId) throws FileNotFoundException {
+        TemporaryFile file = shareRepository.findById(shareId)
                 .orElseThrow(() -> new FileNotFoundException("File expired or does not exist."));
 
         if (System.currentTimeMillis() > file.getExpiresAt()) {
@@ -70,5 +70,26 @@ public class ShareService {
         }
 
         return file.getFile();
+    }
+
+    /**
+     * Stops the sharing of a currently shared file
+     *
+     * @param user the user sending the request
+     * @param shareId the shareId for the file to have its share status revoked
+     * @throws FileNotFoundException if the file was not found in the database
+     * @throws IllegalAccessException if trying to revoke share stats of another users file
+     */
+    public void revoke(User user, UUID shareId) throws FileNotFoundException, IllegalAccessException {
+        TemporaryFile file = shareRepository.findById(shareId)
+                .orElseThrow(() -> new FileNotFoundException("File expired or does not exist."));
+
+        User fileOwner = file.getFile().getFolder().getUser();
+
+        if (!fileOwner.getId().equals(user.getId())) {
+            throw new IllegalAccessException("You can only revoke the share status of your own files!");
+        }
+
+        shareRepository.delete(file);
     }
 }

@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.FileNotFoundException;
 import java.util.UUID;
 
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
@@ -27,10 +29,8 @@ public class ShareController {
         this.service = service;
     }
 
-    @PostMapping("/generate-share-link")
-    public ResponseEntity<?> shareFile(@AuthenticationPrincipal User user,
-                                       @RequestBody ShareFileDto dto,
-                                       HttpServletRequest request) {
+    @PostMapping("/share")
+    public ResponseEntity<?> shareFile(@AuthenticationPrincipal User user, @RequestBody ShareFileDto dto) {
         try {
             UUID shareToken = service.generateLink(user, dto.getFileId(), dto.getExpiryMinutes());
 
@@ -44,10 +44,25 @@ public class ShareController {
         }
     }
 
-    @GetMapping("/share/{fileId}")
-    public ResponseEntity<?> getTemporaryFile(@PathVariable UUID fileId) {
+    @DeleteMapping("/share/{shareId}/revoke")
+    public ResponseEntity<?> revokeSharedFile(@AuthenticationPrincipal User user, @PathVariable UUID shareId) {
         try {
-            CloudFile file = service.getTemporaryFile(fileId);
+            service.revoke(user, shareId);
+
+            return ResponseEntity.ok("File share status revoked successfully");
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(FORBIDDEN)
+                    .body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/share/{shareId}")
+    public ResponseEntity<?> getTemporaryFile(@PathVariable UUID shareId) {
+        try {
+            CloudFile file = service.getTemporaryFile(shareId);
 
             boolean inline = Util.isInlineViewable(file.getContentType());
 
