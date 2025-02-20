@@ -35,13 +35,13 @@ public class FileMeta extends RepresentationModel<FileMeta> {
         return new FileMeta(folder.getId(), folder.getName(), 0, "folder", -1);
     }
 
-    public void addLink(User user, String path, boolean folder) {
+    public void addLink(String path, boolean folder) {
         Link del = WebMvcLinkBuilder.linkTo(folder
-                        ? WebMvcLinkBuilder.methodOn(CloudController.class).deleteFolder(user, this.getId())
-                        : WebMvcLinkBuilder.methodOn(CloudController.class).deleteFile(user, this.getId())
+                        ? WebMvcLinkBuilder.methodOn(CloudController.class).deleteFolder(null, this.getId())
+                        : WebMvcLinkBuilder.methodOn(CloudController.class).deleteFile(null, this.getId())
                         )
                 .withRel("delete");
-        Link self = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CloudController.class).viewFileOrFolder(user, null))
+        Link self = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CloudController.class).viewFileOrFolder(null, null))
                 .withSelfRel()
                 .withHref(Util.getBaseUrl() + "/files/" + path + this.getName() + (folder ? "/" : ""));
         this.add(del, self);

@@ -45,14 +45,14 @@ public class CloudService {
         List<FileMeta> metas = new ArrayList<>();
         for (FileMetaProjection meta : files) {
             FileMeta f = FileMeta.fromModel(meta);
-            f.addLink(user, path, false);
+            f.addLink(path, false);
 
             metas.add(f);
         }
 
         for (CloudFolder subDir : folder.getFolders()) {
             FileMeta f = FileMeta.fromModel(subDir);
-            f.addLink(user, path, true);
+            f.addLink(path, true);
 
             metas.add(f);
         }
@@ -108,7 +108,7 @@ public class CloudService {
 
 
         FileMeta meta = FileMeta.fromModel(newFolder);
-        meta.addLink(user, location + "/", true);
+        meta.addLink(location + "/", true);
         return meta;
     }
 
@@ -153,7 +153,7 @@ public class CloudService {
 
         fileRepository.save(file);
         FileMeta meta = FileMeta.fromModel(file);
-        meta.addLink(user, location + "/", false);
+        meta.addLink(location + "/", false);
         return meta;
     }
 
