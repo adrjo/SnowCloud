@@ -90,9 +90,9 @@ public class CloudController {
     @PostMapping("/folders")
     public ResponseEntity<?> createFolder(@AuthenticationPrincipal User user, @RequestBody CreateFolderDto dto) {
         try {
-            CloudFolder folder = service.createFolder(dto.name, dto.location, user);
+            FileMeta folder = service.createFolder(dto.name, dto.location, user);
 
-            return ResponseEntity.ok(CreateFolderResponseDto.fromModel(folder));
+            return ResponseEntity.ok(folder);
         } catch (FileNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
@@ -156,17 +156,5 @@ public class CloudController {
     public static class CreateFolderDto {
         private String name;
         private String location;
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class CreateFolderResponseDto {
-        private String name;
-        private String location;
-        private String user;
-
-        public static CreateFolderResponseDto fromModel(CloudFolder folder) {
-            return new CreateFolderResponseDto(folder.getName(), folder.getLocation(), folder.getUser().getUsername());
-        }
     }
 }

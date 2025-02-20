@@ -7,11 +7,7 @@ import com.github.adrjo.snowcloud.cloud.file.FileMeta;
 import com.github.adrjo.snowcloud.cloud.file.FileMetaProjection;
 import com.github.adrjo.snowcloud.cloud.folder.CloudFolder;
 import com.github.adrjo.snowcloud.cloud.folder.CloudFolderRepository;
-import com.github.adrjo.snowcloud.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -97,7 +93,7 @@ public class CloudService {
      * @throws FileNotFoundException if the parent folder does not exist
      * @throws IllegalArgumentException if the folder already exists
      */
-    public CloudFolder createFolder(String name, String location, User user) throws FileNotFoundException {
+    public FileMeta createFolder(String name, String location, User user) throws FileNotFoundException {
         Optional<CloudFolder> folder = folderRepository.findByNameAndLocationAndUser(name, location, user);
 
         if (folder.isPresent()) {
@@ -110,7 +106,10 @@ public class CloudService {
         final CloudFolder newFolder = new CloudFolder(name, location, parent, user);
         folderRepository.save(newFolder);
 
-        return newFolder;
+
+        FileMeta meta = FileMeta.fromModel(newFolder);
+        meta.addLink(user, location + "/", true);
+        return meta;
     }
 
 
@@ -153,7 +152,9 @@ public class CloudService {
         );
 
         fileRepository.save(file);
-        return FileMeta.fromModel(file);
+        FileMeta meta = FileMeta.fromModel(file);
+        meta.addLink(user, location + "/", false);
+        return meta;
     }
 
     /**
@@ -228,7 +229,7 @@ public class CloudService {
 
     private String getFolderLocation(String path) {
         String[] parentParts = path.split("/");
-        return String.join("", Arrays.copyOf(parentParts, parentParts.length - 1));
+        return String.join("/", Arrays.copyOf(parentParts, parentParts.length - 1));
     }
 
     private String getDir(String path) {
