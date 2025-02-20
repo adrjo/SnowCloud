@@ -7,7 +7,11 @@ import com.github.adrjo.snowcloud.cloud.file.FileMeta;
 import com.github.adrjo.snowcloud.cloud.file.FileMetaProjection;
 import com.github.adrjo.snowcloud.cloud.folder.CloudFolder;
 import com.github.adrjo.snowcloud.cloud.folder.CloudFolderRepository;
+import com.github.adrjo.snowcloud.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,11 +48,17 @@ public class CloudService {
 
         List<FileMeta> metas = new ArrayList<>();
         for (FileMetaProjection meta : files) {
-            metas.add(FileMeta.fromModel(meta));
+            FileMeta f = FileMeta.fromModel(meta);
+            f.addLink(user, path, false);
+
+            metas.add(f);
         }
 
         for (CloudFolder subDir : folder.getFolders()) {
-            metas.add(FileMeta.fromModel(subDir));
+            FileMeta f = FileMeta.fromModel(subDir);
+            f.addLink(user, path, true);
+
+            metas.add(f);
         }
 
         return metas;

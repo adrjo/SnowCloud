@@ -71,18 +71,4 @@ public class ShareService {
 
         return file.getFile();
     }
-
-
-    public String getUrlFromRequest(HttpServletRequest request) {
-        String scheme = request.getScheme(); // http or https
-        String serverName = request.getServerName(); // e.g., localhost or domain.com
-        int serverPort = request.getServerPort(); // e.g., 8080
-        String contextPath = request.getContextPath(); // e.g., /app
-
-        if ((scheme.equals("http") && serverPort == 80) || (scheme.equals("https") && serverPort == 443)) {
-            return String.format("%s://%s%s", scheme, serverName, contextPath);
-        } else {
-            return String.format("%s://%s:%d%s", scheme, serverName, serverPort, contextPath);
-        }
-    }
 }

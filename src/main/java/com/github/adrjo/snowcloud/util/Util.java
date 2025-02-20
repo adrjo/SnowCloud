@@ -1,5 +1,7 @@
 package com.github.adrjo.snowcloud.util;
 
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 public class Util {
 
     /**
@@ -13,5 +15,9 @@ public class Util {
         return contentType.startsWith("image/")
                 || contentType.equals("application/pdf")
                 || contentType.equals("text/plain");
+    }
+
+    public static String getBaseUrl() {
+       return ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
     }
 }

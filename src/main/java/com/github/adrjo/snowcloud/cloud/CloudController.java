@@ -51,7 +51,6 @@ public class CloudController {
      */
     @GetMapping("/files/**")
     public ResponseEntity<?> viewFileOrFolder(@AuthenticationPrincipal User user, HttpServletRequest request) {
-        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
         String path = request.getRequestURI().substring("/files/".length());
 
         String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
@@ -69,24 +68,8 @@ public class CloudController {
             }
 
             List<FileMeta> files = service.getFiles(decodedPath, user);
-            List<EntityModel<FileMeta>> filesWithLinks = new ArrayList<>();
-            for (FileMeta f : files) {
-                boolean folder = f.getLastModified() == -1;
-                EntityModel<FileMeta> model = EntityModel.of(f);
 
-                Link del = WebMvcLinkBuilder.linkTo(folder
-                                ? WebMvcLinkBuilder.methodOn(this.getClass()).deleteFolder(user, f.getId())
-                                : WebMvcLinkBuilder.methodOn(this.getClass()).deleteFile(user, f.getId())
-                        )
-                        .withRel("delete");
-                Link self = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).viewFileOrFolder(user, null))
-                        .withSelfRel()
-                        .withHref(baseUrl + "/files/" + path + f.getName() + (folder ? "/" : ""));
-                model.add(del, self);
-                filesWithLinks.add(model);
-            }
-
-            return ResponseEntity.ok(filesWithLinks);
+            return ResponseEntity.ok(files);
         } catch (FileNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());

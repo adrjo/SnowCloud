@@ -34,9 +34,7 @@ public class ShareController {
         try {
             UUID shareToken = service.generateLink(user, dto.getFileId(), dto.getExpiryMinutes());
 
-            String url = service.getUrlFromRequest(request);
-
-            return ResponseEntity.ok(GeneratedLinkDto.fromToken(shareToken, url));
+            return ResponseEntity.ok(GeneratedLinkDto.fromToken(shareToken, Util.getBaseUrl()));
         } catch (FileNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
