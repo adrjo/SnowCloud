@@ -3,7 +3,6 @@ package com.github.adrjo.snowcloud.share;
 import com.github.adrjo.snowcloud.auth.User;
 import com.github.adrjo.snowcloud.cloud.file.CloudFile;
 import com.github.adrjo.snowcloud.cloud.file.CloudFileRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +45,10 @@ public class ShareService {
             throw new IllegalArgumentException("You can only share your own files!");
         }
 
-        final TemporaryFile tempFile = new TemporaryFile(file, expiryMinutes);
+        TemporaryFile tempFile = shareRepository.findByFileId(fileId)
+                .orElseGet(() -> new TemporaryFile(file));
+
+        tempFile.updateExpiryMinutesFromNow(expiryMinutes);
 
         shareRepository.save(tempFile);
         return tempFile.getId();

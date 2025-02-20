@@ -24,9 +24,12 @@ public class TemporaryFile {
     private CloudFile file;
     private long expiresAt;
 
-    public TemporaryFile(CloudFile file, int expiryMinutes) {
+    public TemporaryFile(CloudFile file) {
         this.id = UUID.randomUUID();
         this.file = file;
+    }
+
+    public void updateExpiryMinutesFromNow(int expiryMinutes) {
         this.expiresAt = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(expiryMinutes);
     }
 }
