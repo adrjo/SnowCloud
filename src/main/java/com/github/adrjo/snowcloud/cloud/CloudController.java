@@ -9,16 +9,21 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,6 +51,7 @@ public class CloudController {
      */
     @GetMapping("/files/**")
     public ResponseEntity<?> viewFileOrFolder(@AuthenticationPrincipal User user, HttpServletRequest request) {
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
         String path = request.getRequestURI().substring("/files/".length());
 
         String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
@@ -63,8 +69,24 @@ public class CloudController {
             }
 
             List<FileMeta> files = service.getFiles(decodedPath, user);
+            List<EntityModel<FileMeta>> filesWithLinks = new ArrayList<>();
+            for (FileMeta f : files) {
+                boolean folder = f.getLastModified() == -1;
+                EntityModel<FileMeta> model = EntityModel.of(f);
 
-            return ResponseEntity.ok(files);
+                Link del = WebMvcLinkBuilder.linkTo(folder
+                                ? WebMvcLinkBuilder.methodOn(this.getClass()).deleteFolder(user, f.getId())
+                                : WebMvcLinkBuilder.methodOn(this.getClass()).deleteFile(user, f.getId())
+                        )
+                        .withRel("delete");
+                Link self = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).viewFileOrFolder(user, null))
+                        .withSelfRel()
+                        .withHref(baseUrl + "/files/" + path + f.getName() + (folder ? "/" : ""));
+                model.add(del, self);
+                filesWithLinks.add(model);
+            }
+
+            return ResponseEntity.ok(filesWithLinks);
         } catch (FileNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());

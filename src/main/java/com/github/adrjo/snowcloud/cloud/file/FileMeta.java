@@ -3,12 +3,13 @@ package com.github.adrjo.snowcloud.cloud.file;
 import com.github.adrjo.snowcloud.cloud.folder.CloudFolder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.util.UUID;
 
 @Data
 @AllArgsConstructor
-public class FileMeta {
+public class FileMeta extends RepresentationModel<FileMeta> {
     private UUID id;
     private String name;
     private long size;
