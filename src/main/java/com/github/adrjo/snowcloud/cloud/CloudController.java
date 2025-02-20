@@ -82,7 +82,7 @@ public class CloudController {
      * @param dto  name and path location of where the folder should be created
      * @return folder info on success
      */
-    @PostMapping("/create-folder")
+    @PostMapping("/folders")
     public ResponseEntity<?> createFolder(@AuthenticationPrincipal User user, @RequestBody CreateFolderDto dto) {
         try {
             CloudFolder folder = service.createFolder(dto.name, dto.location, user);
@@ -98,7 +98,7 @@ public class CloudController {
         }
     }
 
-    @PostMapping("/upload-file")
+    @PostMapping("/files")
     public ResponseEntity<?> uploadFile(@AuthenticationPrincipal User user,
                                         @RequestParam("file") MultipartFile file,
                                         @RequestParam("location") String location,
@@ -117,10 +117,10 @@ public class CloudController {
     }
 
 
-    @DeleteMapping("/delete-file")
-    public ResponseEntity<?> deleteFile(@AuthenticationPrincipal User user, @RequestBody GenericDeleteByIdDto dto) {
+    @DeleteMapping("/files/{id}")
+    public ResponseEntity<?> deleteFile(@AuthenticationPrincipal User user, @PathVariable UUID id) {
         try {
-            service.deleteFile(user, dto.getId());
+            service.deleteFile(user, id);
 
             return ResponseEntity.ok("Success");
         } catch (FileNotFoundException e) {
@@ -132,10 +132,10 @@ public class CloudController {
         }
     }
 
-    @DeleteMapping("/delete-folder")
-    public ResponseEntity<?> deleteFolder(@AuthenticationPrincipal User user, @RequestBody GenericDeleteByIdDto dto) {
+    @DeleteMapping("/folders/{id}")
+    public ResponseEntity<?> deleteFolder(@AuthenticationPrincipal User user, @PathVariable UUID id) {
         try {
-            service.deleteFolder(user, dto.getId());
+            service.deleteFolder(user, id);
 
             return ResponseEntity.ok("Success");
         } catch (FileNotFoundException e) {
@@ -145,11 +145,6 @@ public class CloudController {
             return ResponseEntity.status(FORBIDDEN)
                     .body(e.getMessage());
         }
-    }
-
-    @Data
-    public static class GenericDeleteByIdDto {
-        private UUID id;
     }
 
     @Data
