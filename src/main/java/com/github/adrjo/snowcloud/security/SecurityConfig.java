@@ -37,7 +37,11 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**", "/share/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // Allow session for OAuth2
-                .oauth2Login(oauth -> oauth.successHandler(oAuthSuccessHandler)) // Enable OAuth2 login
+                .oauth2Login(oauth -> {
+                    oauth
+                            .successHandler(oAuthSuccessHandler)
+                            .defaultSuccessUrl("/files/", true);
+                }) // Enable OAuth2 login
                 .authenticationProvider(getAuthenticationProvider()) // Custom auth provider for JWT
                 .addFilterAfter(new VerifyOAuthFilter(authRepository), OAuth2LoginAuthenticationFilter.class)
                 .addFilterAfter(new VerifyJwtFilter(authService), VerifyOAuthFilter.class); // verify jwt only if oauth is not used
