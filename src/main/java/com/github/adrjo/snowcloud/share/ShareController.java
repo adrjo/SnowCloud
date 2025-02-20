@@ -3,11 +3,13 @@ package com.github.adrjo.snowcloud.share;
 import com.github.adrjo.snowcloud.auth.User;
 import com.github.adrjo.snowcloud.cloud.file.CloudFile;
 import com.github.adrjo.snowcloud.util.Util;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,7 +36,7 @@ public class ShareController {
         try {
             UUID shareToken = service.generateLink(user, dto.getFileId(), dto.getExpiryMinutes());
 
-            return ResponseEntity.ok(GeneratedLinkDto.fromToken(shareToken, Util.getBaseUrl()));
+            return ResponseEntity.ok(GeneratedLinkDto.fromToken(shareToken));
         } catch (FileNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
@@ -86,14 +88,21 @@ public class ShareController {
         private int expiryMinutes;
     }
 
+    @EqualsAndHashCode(callSuper = true)
     @Data
     @AllArgsConstructor
-    public static class GeneratedLinkDto {
-        private UUID shareToken;
-        private String url;
+    public static class GeneratedLinkDto extends RepresentationModel<GeneratedLinkDto> {
+        private UUID shareId;
 
-        public static GeneratedLinkDto fromToken(UUID shareToken, String serverUrl) {
-            return new GeneratedLinkDto(shareToken, serverUrl + "/share/" + shareToken);
+        public static GeneratedLinkDto fromToken(UUID shareId) {
+            var genned = new GeneratedLinkDto(shareId);
+            Link revoke = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ShareController.class).revokeSharedFile(null, shareId))
+                    .withRel("revoke");
+            Link self = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ShareController.class).getTemporaryFile(shareId))
+                    .withSelfRel();
+
+            genned.add(revoke, self);
+            return genned;
         }
     }
 }

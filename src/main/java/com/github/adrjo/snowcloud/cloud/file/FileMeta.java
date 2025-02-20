@@ -6,12 +6,14 @@ import com.github.adrjo.snowcloud.cloud.folder.CloudFolder;
 import com.github.adrjo.snowcloud.util.Util;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 
 import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 public class FileMeta extends RepresentationModel<FileMeta> {
