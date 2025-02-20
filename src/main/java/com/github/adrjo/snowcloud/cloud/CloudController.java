@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,50 +36,35 @@ public class CloudController {
     }
 
     /**
-     * Get all the files in a user folder <br>
-     * Only file meta-data is sent here, no contents <br>
-     * to get file contents, use CloudController::downloadFile
+     * View the file or folder requested <br>
+     * If the path ends in a "/" the meta information for all the files in the folder is returned <br>
+     * Otherwise the file is returned, including the file data
      *
-     * @param user the user sending the request
-     * @param request
-     *        to get the full folder path, including folders in folders, we use wildcard and
-     *        HttpServletRequest to extract the full path after the /files/ endpoint.
-     *        without this folders would not be able to be deeper than one.
-     * @return list of FileMeta
+     * @param user    the user sending the request
+     * @param request the raw http request, used for parsing the full path
+     * @return list of FileMeta or a single file's content
      */
     @GetMapping("/files/**")
-    public ResponseEntity<?> getFilesInFolder(@AuthenticationPrincipal User user, HttpServletRequest request) {
+    public ResponseEntity<?> viewFileOrFolder(@AuthenticationPrincipal User user, HttpServletRequest request) {
         String path = request.getRequestURI().substring("/files/".length());
+
+        String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
         try {
-            List<FileMeta> files = service.getFiles(path, user);
+            if (!decodedPath.isBlank() && !decodedPath.endsWith("/")) {
+                CloudFile file = service.getFileData(decodedPath, user);
+
+                boolean inline = Util.isInlineViewable(file.getContentType());
+
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, (inline ? "inline" : "attachment") + "; filename=\"" + file.getName() + "\"")
+                        .header(HttpHeaders.CONTENT_TYPE, file.getContentType())
+                        .header(HttpHeaders.LAST_MODIFIED, file.getLastModifiedFormatted())
+                        .body(file.getFileData()); // no content-length header needed, spring sets this automatically (and things break if set manually)
+            }
+
+            List<FileMeta> files = service.getFiles(decodedPath, user);
 
             return ResponseEntity.ok(files);
-        } catch (FileNotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND)
-                    .body(e.getMessage());
-        }
-    }
-
-    /**
-     * Returns the file in the user folder requested
-     *
-     * @param user the user sending the request
-     * @param request full path of the file to be downloaded
-     * @return file data
-     */
-    @GetMapping("/download/**")
-    public ResponseEntity<?> downloadFile(@AuthenticationPrincipal User user, HttpServletRequest request) {
-        String path = request.getRequestURI().substring("/download/".length());
-        try {
-            CloudFile file = service.getFileData(path, user);
-
-            boolean inline = Util.isInlineViewable(file.getContentType());
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, (inline ? "inline" : "attachment") + "; filename=\"" + file.getName() + "\"")
-                    .header(HttpHeaders.CONTENT_TYPE, file.getContentType())
-                    .header(HttpHeaders.LAST_MODIFIED, file.getLastModifiedFormatted())
-                    .body(file.getFileData()); // no content-length header needed, spring sets this automatically (and things break if set manually)
         } catch (FileNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND)
                     .body(e.getMessage());
@@ -92,7 +79,7 @@ public class CloudController {
      * location needs to point to a folder that already exists, or be left empty (root folder)
      *
      * @param user the user sending the request
-     * @param dto name and path location of where the folder should be created
+     * @param dto  name and path location of where the folder should be created
      * @return folder info on success
      */
     @PostMapping("/create-folder")
