@@ -3,27 +3,20 @@ package com.github.adrjo.snowcloud.cloud;
 import com.github.adrjo.snowcloud.auth.User;
 import com.github.adrjo.snowcloud.cloud.file.CloudFile;
 import com.github.adrjo.snowcloud.cloud.file.FileMeta;
-import com.github.adrjo.snowcloud.cloud.folder.CloudFolder;
 import com.github.adrjo.snowcloud.util.Util;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,7 +36,10 @@ public class CloudController {
     /**
      * View the file or folder requested <br>
      * If the path ends in a "/" the meta information for all the files in the folder is returned <br>
-     * Otherwise the file is returned, including the file data
+     * Otherwise the file is returned, including the file data <br>
+     * <br>
+     * Example request for a file named 'cat.png' in the folder 'animals' in the user-root folder: <br>
+     * <code>GET /files/animals/cat.png</code>
      *
      * @param user    the user sending the request
      * @param request the raw http request, used for parsing the full path

@@ -31,6 +31,35 @@ public class ShareController {
         this.service = service;
     }
 
+    /**
+     * Quick-share a file for 30 minutes.
+     *
+     * @param user user sending the request
+     * @param fileId the file-id of the file to-be shared
+     * @return the generated link
+     */
+    @PostMapping("/share/{fileId}")
+    public ResponseEntity<?> shareFileTemporarily(@AuthenticationPrincipal User user, @PathVariable UUID fileId) {
+        try {
+            UUID shareToken = service.generateLink(user, fileId, 30);
+
+            return ResponseEntity.ok(GeneratedLinkDto.fromToken(shareToken));
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.status(NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(e.getMessage());
+        }
+    }
+
+    /**
+     * Share a file, with options for expiry time
+     *
+     * @param user the user sending the request
+     * @param dto the file-id and expiry time in minutes for the generated link
+     * @return the generated link
+     */
     @PostMapping("/share")
     public ResponseEntity<?> shareFile(@AuthenticationPrincipal User user, @RequestBody ShareFileDto dto) {
         try {

@@ -1,8 +1,8 @@
 package com.github.adrjo.snowcloud.cloud.file;
 
-import com.github.adrjo.snowcloud.auth.User;
 import com.github.adrjo.snowcloud.cloud.CloudController;
 import com.github.adrjo.snowcloud.cloud.folder.CloudFolder;
+import com.github.adrjo.snowcloud.share.ShareController;
 import com.github.adrjo.snowcloud.util.Util;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,14 +36,29 @@ public class FileMeta extends RepresentationModel<FileMeta> {
     }
 
     public void addLink(String path, boolean folder) {
-        Link del = WebMvcLinkBuilder.linkTo(folder
-                        ? WebMvcLinkBuilder.methodOn(CloudController.class).deleteFolder(null, this.getId())
-                        : WebMvcLinkBuilder.methodOn(CloudController.class).deleteFile(null, this.getId())
+        Link del = WebMvcLinkBuilder
+                .linkTo(folder
+                        ? WebMvcLinkBuilder.methodOn(CloudController.class)
+                                .deleteFolder(null, this.getId())
+                        : WebMvcLinkBuilder.methodOn(CloudController.class)
+                                .deleteFile(null, this.getId())
                         )
                 .withRel("delete");
-        Link self = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CloudController.class).viewFileOrFolder(null, null))
+
+        Link self = WebMvcLinkBuilder
+                .linkTo(WebMvcLinkBuilder.methodOn(CloudController.class)
+                        .viewFileOrFolder(null, null))
                 .withSelfRel()
                 .withHref(Util.getBaseUrl() + "/files/" + path + this.getName() + (folder ? "/" : ""));
+
+        if (!folder) {
+            Link share = WebMvcLinkBuilder
+                    .linkTo(WebMvcLinkBuilder.methodOn(ShareController.class)
+                            .shareFileTemporarily(null, this.getId()))
+                    .withRel("share");
+            this.add(share);
+        }
+
         this.add(del, self);
     }
 }
