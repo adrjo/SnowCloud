@@ -66,7 +66,7 @@ public class CloudController {
             List<FileMeta> files = service.getFiles(decodedPath, user);
 
             for (FileMeta file : files) {
-                file.addLink(decodedPath, file.getSize() == 0);
+                file.addLink(decodedPath, file.getLastModified() == -1);
             }
 
             return ResponseEntity.ok(files);
