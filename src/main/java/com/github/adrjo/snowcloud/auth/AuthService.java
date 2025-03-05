@@ -85,15 +85,13 @@ public class AuthService implements UserDetailsService {
         return jwtService.generate(user.getId());
     }
 
-    private Optional<User> loadUserByNameOrEmail(String name) {
-        return repository.findByUsername(name)
-                .or(() -> repository.findByEmail(name));
-
+    private Optional<User> loadUserByNameOrEmail(String nameOrEmail) {
+        return repository.findByUsernameOrEmail(nameOrEmail);
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return (UserDetails) loadUserByNameOrEmail(username)
+    public UserDetails loadUserByUsername(String nameOrEmail) throws UsernameNotFoundException {
+        return loadUserByNameOrEmail(nameOrEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Invalid username or password."));
     }
 

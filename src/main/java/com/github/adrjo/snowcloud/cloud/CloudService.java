@@ -173,8 +173,7 @@ public class CloudService {
      *
      * @param user the user sending the request
      * @param fileId of the file to be deleted
-     * @throws FileNotFoundException if the file does not exist
-     * @throws IllegalArgumentException if trying to delete other users files
+     * @throws FileNotFoundException if the file does not exist or no access
      */
     public void deleteFile(User user, UUID fileId) throws FileNotFoundException {
         CloudFile file = fileRepository.findById(fileId)
@@ -183,7 +182,7 @@ public class CloudService {
         User fileOwner = file.getFolder().getUser();
 
         if (!fileOwner.getId().equals(user.getId())) {
-            throw new IllegalArgumentException("Cannot delete other users files.");
+            throw new FileNotFoundException("File not found.");
         }
 
         fileRepository.delete(file);
