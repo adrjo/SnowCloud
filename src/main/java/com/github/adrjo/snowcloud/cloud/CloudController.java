@@ -118,7 +118,7 @@ public class CloudController {
             return ResponseEntity.badRequest()
                     .body(e.getMessage());
         } catch (IOException e) {
-            return ResponseEntity.badRequest()
+            return ResponseEntity.internalServerError()
                     .body("Invalid file data");
         }
     }
