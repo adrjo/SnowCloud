@@ -65,6 +65,10 @@ public class CloudController {
 
             List<FileMeta> files = service.getFiles(decodedPath, user);
 
+            for (FileMeta file : files) {
+                file.addLink(decodedPath, file.getSize() == 0);
+            }
+
             return ResponseEntity.ok(files);
         } catch (FileNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND)
@@ -87,6 +91,7 @@ public class CloudController {
     public ResponseEntity<?> createFolder(@AuthenticationPrincipal User user, @RequestBody CreateFolderDto dto) {
         try {
             FileMeta folder = service.createFolder(dto.name, dto.location, user);
+            folder.addLink(dto.location + "/", true);
 
             return ResponseEntity.ok(folder);
         } catch (FileNotFoundException e) {
@@ -106,6 +111,7 @@ public class CloudController {
                                         @RequestParam(value = "customName", required = false) String customName) {
         try {
             FileMeta meta = service.uploadFile(file, location, customName, user);
+            meta.addLink(location + "/", false);
 
             return ResponseEntity.ok(meta);
         } catch (IllegalArgumentException e) {
